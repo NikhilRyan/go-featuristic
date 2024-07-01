@@ -1,10 +1,10 @@
 package handlers
 
 import (
-    "encoding/json"
-    "github.com/nikhilryan/go-featuristic/internal/models"
-    "github.com/nikhilryan/go-featuristic/internal/services"
-    "net/http"
+	"encoding/json"
+	"github.com/nikhilryan/go-featuristic/internal/models"
+	"github.com/nikhilryan/go-featuristic/internal/services"
+	"net/http"
 )
 
 type FeatureFlagHandler struct {
@@ -36,7 +36,10 @@ func (h *FeatureFlagHandler) GetFlag(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
-	json.NewEncoder(w).Encode(flag)
+	err = json.NewEncoder(w).Encode(flag)
+	if err != nil {
+		return
+	}
 }
 
 func (h *FeatureFlagHandler) UpdateFlag(w http.ResponseWriter, r *http.Request) {
