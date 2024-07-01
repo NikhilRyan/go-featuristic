@@ -75,48 +75,106 @@ Create a main.go file to use the Go-Featuristic library:
 package main
 
 import (
+    "fmt"
     "log"
-    "net/http"
     "github.com/nikhilryan/go-featuristic/config"
+    "github.com/nikhilryan/go-featuristic/internal/models"
     "github.com/nikhilryan/go-featuristic/internal/services"
-    "github.com/nikhilryan/go-featuristic/api/routers"
     "gorm.io/driver/postgres"
     "gorm.io/gorm"
 )
 
 func main() {
-    // Load configuration
     cfg, err := config.LoadConfig(".")
     if err != nil {
         log.Fatalf("could not load config: %v", err)
     }
 
-    // Connect to the database
     dsn := config.GetDSN(cfg)
     db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
     if err != nil {
         log.Fatalf("failed to connect to database: %v", err)
     }
 
-    // Initialize services
+    db.AutoMigrate(&models.FeatureFlag{})
+
     cacheService := services.NewCacheService(cfg.CacheHost + ":" + cfg.CachePort)
     featureFlagService := services.NewFeatureFlagService(db, cacheService)
 
-    // Setup router
-    r := routers.SetupRouter(featureFlagService)
+    stringFlag := &models.FeatureFlag{
+        Namespace: "test",
+        Key:       "stringFeature",
+        Value:     "example string",
+        Type:      "string",
+    }
+    err = featureFlagService.CreateFlag(stringFlag)
+    if err != nil {
+        log.Fatalf("failed to create feature flag: %v", err)
+    }
 
-    // Start the server
-    log.Println("Server running on port", cfg.ServerPort)
-    log.Fatal(http.ListenAndServe(":"+cfg.ServerPort, r))
+    value, err := featureFlagService.GetFlagValue("test", "stringFeature")
+    if err != nil {
+        log.Fatalf("failed to get feature flag value: %v", err)
+    }
+    fmt.Printf("Feature flag value: %v\n", value)
 }
 ```
 
-#### Run the Project
+### Example for String Array
 
-Run the project using the `go run` command:
+```go
+package main
 
-```sh
-go run main.go
+import (
+    "fmt"
+    "log"
+    "encoding/json"
+    "github.com/nikhilryan/go-featuristic/config"
+    "github.com/nikhilryan/go-featuristic/internal/models"
+    "github.com/nikhilryan/go-featuristic/internal/services"
+    "gorm.io/driver/postgres"
+    "gorm.io/gorm"
+)
+
+func main() {
+    cfg, err := config.LoadConfig(".")
+    if err != nil {
+        log.Fatalf("could not load config: %v", err)
+    }
+
+    dsn := config.GetDSN(cfg)
+    db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+    if err != nil {
+        log.Fatalf("failed to connect to database: %v", err)
+    }
+
+    db.AutoMigrate(&models.FeatureFlag{})
+
+    cacheService := services.NewCacheService(cfg.CacheHost + ":" + cfg.CachePort)
+    featureFlagService := services.NewFeatureFlagService(db, cacheService)
+
+    stringArray := []string{"feature1", "feature2", "feature3"}
+    stringArrayJSON, err := json.Marshal(stringArray)
+    if err != nil {
+        log.Fatalf("failed to marshal string array: %v", err)
+    }
+    stringArrayFlag := &models.FeatureFlag{
+        Namespace: "test",
+        Key:       "stringArrayFeature",
+        Value:     string(stringArrayJSON),
+        Type:      "stringArray",
+    }
+    err = featureFlagService.CreateFlag(stringArrayFlag)
+    if err != nil {
+        log.Fatalf("failed to create feature flag: %v", err)
+    }
+
+    value, err := featureFlagService.GetFlagValue("test", "stringArrayFeature")
+    if err != nil {
+        log.Fatalf("failed to get feature flag value: %v", err)
+    }
+    fmt.Printf("Feature flag value: %v\n", value)
+}
 ```
 
 ## Contributing

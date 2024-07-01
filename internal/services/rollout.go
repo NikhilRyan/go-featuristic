@@ -26,6 +26,68 @@ func (r *RolloutService) IsEnabled(namespace, key string, userID string, rollout
 
 func hashUserID(userID string) int {
 	h := fnv.New32a()
-	h.Write([]byte(userID))
+	_, err := h.Write([]byte(userID))
+	if err != nil {
+		return 0
+	}
 	return int(h.Sum32())
+}
+
+func (r *RolloutService) GetRolloutPercentage(namespace, key string) (int, error) {
+	flag, err := r.featureFlagService.GetFlag(namespace, key)
+	if err != nil {
+		return 0, err
+	}
+	if flag.Type != "boolean" {
+		return 0, nil
+	}
+	return 100, nil
+}
+
+func (r *RolloutService) GetRolloutPercentageForUser(namespace, key, userID string) (int, error) {
+	flag, err := r.featureFlagService.GetFlag(namespace, key)
+	if err != nil {
+		return 0, err
+	}
+	if flag.Type != "boolean" {
+		return 0, nil
+	}
+	hash := hashUserID(userID)
+	return hash % 100, nil
+}
+
+func (r *RolloutService) GetRolloutPercentageForUserAndNamespace(namespace, key, userID string) (int, error) {
+	flag, err := r.featureFlagService.GetFlag(namespace, key)
+	if err != nil {
+		return 0, err
+	}
+	if flag.Type != "boolean" {
+		return 0, nil
+	}
+	hash := hashUserID(userID)
+	return hash % 100, nil
+}
+
+func (r *RolloutService) GetRolloutPercentageForUserAndKey(namespace, key, userID string) (int, error) {
+	flag, err := r.featureFlagService.GetFlag(namespace, key)
+	if err != nil {
+		return 0, err
+	}
+	if flag.Type != "boolean" {
+		return 0, nil
+	}
+	hash := hashUserID(userID)
+	return hash % 100, nil
+}
+
+func (r *RolloutService) GetRolloutPercentageForUserAndNamespaceAndKey(namespace, key, userID string) (int, error) {
+	flag, err := r.featureFlagService.GetFlag(namespace, key)
+	if err != nil {
+		return 0, err
+	}
+	if flag.Type != "boolean" {
+		return 0, nil
+	}
+	hash := hashUserID(userID)
+	return hash % 100, nil
 }
