@@ -25,6 +25,8 @@ func main() {
 		examples.RunStringArrayExample()
 	case "rollout":
 		examples.RunRolloutExample()
+	case "abTesting":
+		examples.RunABExample()
 	default:
 		log.Fatalf("Unknown example: %s", *example)
 	}

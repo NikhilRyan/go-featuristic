@@ -10,7 +10,7 @@ import (
 	"log"
 )
 
-func main() {
+func RunABExample() {
 	cfg, err := config.LoadConfig(".")
 	if err != nil {
 		log.Fatalf("could not load config: %v", err)
