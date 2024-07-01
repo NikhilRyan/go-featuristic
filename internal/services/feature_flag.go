@@ -156,3 +156,12 @@ func (s *FeatureFlagService) GetAllFlags(namespace string) ([]models.FeatureFlag
 	}
 	return flags, nil
 }
+
+func (s *FeatureFlagService) GetABTestVariant(namespace, key, userID, targetGroup string) (string, error) {
+	flag, err := s.GetFlag(namespace, key)
+	if err != nil {
+		return "", err
+	}
+
+	return determineABTestVariant(flag, userID, targetGroup)
+}
