@@ -17,6 +17,10 @@ func NewFeatureFlagService(db *gorm.DB, cache *CacheService) *FeatureFlagService
 	return &FeatureFlagService{db: db, cache: cache}
 }
 
+func getCacheKey(namespace, key string) string {
+	return fmt.Sprintf("%s_%s", namespace, key)
+}
+
 func (s *FeatureFlagService) CreateFlag(flag *models.FeatureFlag) error {
 	if err := s.db.Create(flag).Error; err != nil {
 		return err
@@ -77,6 +81,12 @@ func (s *FeatureFlagService) GetFlagValue(namespace, key string) (interface{}, e
 		value = floatValue
 	case "string":
 		value = flag.Value
+	case "bool":
+		var boolValue bool
+		if err := json.Unmarshal([]byte(flag.Value), &boolValue); err != nil {
+			return nil, err
+		}
+		value = boolValue
 	case "intArray":
 		var intArrayValue []int
 		if err := json.Unmarshal([]byte(flag.Value), &intArrayValue); err != nil {
@@ -120,46 +130,29 @@ func (s *FeatureFlagService) DeleteFlag(namespace, key string) error {
 	return s.cache.Invalidate(getCacheKey(namespace, key))
 }
 
+func (s *FeatureFlagService) DeleteAllFlags(namespace string) error {
+	if err := s.db.Where("namespace = ?", namespace).Delete(&models.FeatureFlag{}).Error; err != nil {
+		return err
+	}
+
+	// Invalidate cache for all flags under the namespace
+	var flags []models.FeatureFlag
+	if err := s.db.Where("namespace = ?", namespace).Find(&flags).Error; err == nil {
+		for _, flag := range flags {
+			err := s.cache.Invalidate(getCacheKey(namespace, flag.Key))
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
 func (s *FeatureFlagService) GetAllFlags(namespace string) ([]models.FeatureFlag, error) {
 	var flags []models.FeatureFlag
 	if err := s.db.Where("namespace = ?", namespace).Find(&flags).Error; err != nil {
 		return nil, err
 	}
 	return flags, nil
-}
-
-func (s *FeatureFlagService) GetFlagCount(namespace string) (int64, error) {
-	var count int64
-	if err := s.db.Model(&models.FeatureFlag{}).Where("namespace = ?", namespace).Count(&count).Error; err != nil {
-		return 0, err
-	}
-	return count, nil
-}
-
-func (s *FeatureFlagService) GetFlagKeys(namespace string) ([]string, error) {
-	var keys []string
-	if err := s.db.Model(&models.FeatureFlag{}).Where("namespace = ?", namespace).Pluck("key", &keys).Error; err != nil {
-		return nil, err
-	}
-	return keys, nil
-}
-
-func (s *FeatureFlagService) GetFlagKeysByType(namespace string, flagType string) ([]string, error) {
-	var keys []string
-	if err := s.db.Model(&models.FeatureFlag{}).Where("namespace = ? AND type = ?", namespace, flagType).Pluck("key", &keys).Error; err != nil {
-		return nil, err
-	}
-	return keys, nil
-}
-
-func (s *FeatureFlagService) GetFlagKeysByTypeAndValue(namespace string, flagType string, value interface{}) ([]string, error) {
-	var keys []string
-	if err := s.db.Model(&models.FeatureFlag{}).Where("namespace = ? AND type = ? AND value = ?", namespace, flagType, value).Pluck("key", &keys).Error; err != nil {
-		return nil, err
-	}
-	return keys, nil
-}
-
-func getCacheKey(namespace, key string) string {
-	return fmt.Sprintf("%s_%s", namespace, key)
 }
