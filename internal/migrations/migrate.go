@@ -20,5 +20,8 @@ func main() {
 		log.Fatalf("failed to connect to database: %v", err)
 	}
 
-	db.AutoMigrate(&models.FeatureFlag{})
+	err = db.AutoMigrate(&models.FeatureFlag{})
+	if err != nil {
+		return
+	}
 }

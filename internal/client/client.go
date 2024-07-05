@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/nikhilryan/go-featuristic/internal/models"
+	"io"
 	"net/http"
 )
 
@@ -21,7 +22,12 @@ func (c *FeatureFlagClient) GetFlag(namespace, key string) (*models.FeatureFlag,
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			return
+		}
+	}(resp.Body)
 
 	var flag models.FeatureFlag
 	if err := json.NewDecoder(resp.Body).Decode(&flag); err != nil {
@@ -40,7 +46,12 @@ func (c *FeatureFlagClient) CreateFlag(flag *models.FeatureFlag) error {
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			return
+		}
+	}(resp.Body)
 
 	if resp.StatusCode != http.StatusCreated {
 		return errors.New("failed to create feature flag")
@@ -66,7 +77,12 @@ func (c *FeatureFlagClient) UpdateFlag(flag *models.FeatureFlag) error {
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			return
+		}
+	}(resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
 		return errors.New("failed to update feature flag")
@@ -86,7 +102,12 @@ func (c *FeatureFlagClient) DeleteFlag(namespace, key string) error {
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			return
+		}
+	}(resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
 		return errors.New("failed to delete feature flag")

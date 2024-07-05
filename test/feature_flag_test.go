@@ -13,7 +13,10 @@ func TestCreateFlag(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to connect to the database: %v", err)
 	}
-	db.AutoMigrate(&models.FeatureFlag{})
+	err = db.AutoMigrate(&models.FeatureFlag{})
+	if err != nil {
+		return
+	}
 
 	cache := services.NewCacheService("localhost:6379")
 	service := services.NewFeatureFlagService(db, cache)
@@ -38,13 +41,19 @@ func TestUpdateFlag(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to connect to the database: %v", err)
 	}
-	db.AutoMigrate(&models.FeatureFlag{})
+	err = db.AutoMigrate(&models.FeatureFlag{})
+	if err != nil {
+		return
+	}
 
 	cache := services.NewCacheService("localhost:6379")
 	service := services.NewFeatureFlagService(db, cache)
 
 	flag := &models.FeatureFlag{Namespace: "test", Key: "new_feature", Value: "true", Type: "boolean"}
-	service.CreateFlag(flag)
+	err = service.CreateFlag(flag)
+	if err != nil {
+		return
+	}
 
 	flag.Value = "false"
 	err = service.UpdateFlag(flag)
@@ -66,13 +75,19 @@ func TestDeleteFlag(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to connect to the database: %v", err)
 	}
-	db.AutoMigrate(&models.FeatureFlag{})
+	err = db.AutoMigrate(&models.FeatureFlag{})
+	if err != nil {
+		return
+	}
 
 	cache := services.NewCacheService("localhost:6379")
 	service := services.NewFeatureFlagService(db, cache)
 
 	flag := &models.FeatureFlag{Namespace: "test", Key: "new_feature", Value: "true", Type: "boolean"}
-	service.CreateFlag(flag)
+	err = service.CreateFlag(flag)
+	if err != nil {
+		return
+	}
 
 	err = service.DeleteFlag("test", "new_feature")
 	if err != nil {
