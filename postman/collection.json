@@ -1,0 +1,181 @@
+{
+  "info": {
+    "name": "Go Featuristic API",
+    "_postman_id": "1a2b3c4d-5678-90ab-cdef-1234567890ab",
+    "description": "Collection for Go Featuristic API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create Feature Flag",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"namespace\": \"test\",\n  \"key\": \"feature1\",\n  \"value\": \"true\",\n  \"type\": \"bool\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/flags",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "flags"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Feature Flag",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/flags/test/feature1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "flags",
+            "test",
+            "feature1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get All Feature Flags",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/flags/test",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "flags",
+            "test"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Update Feature Flag",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"namespace\": \"test\",\n  \"key\": \"feature1\",\n  \"value\": \"false\",\n  \"type\": \"bool\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/flags/test/feature1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "flags",
+            "test",
+            "feature1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Delete Feature Flag",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/flags/test/feature1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "flags",
+            "test",
+            "feature1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Delete All Feature Flags",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/flags/test",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "flags",
+            "test"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get A/B Test Variant",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/abtest/test/abTestFeature?user_id=user123&target_group=groupA",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "abtest",
+            "test",
+            "abTestFeature"
+          ],
+          "query": [
+            {
+              "key": "user_id",
+              "value": "user123"
+            },
+            {
+              "key": "target_group",
+              "value": "groupA"
+            }
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

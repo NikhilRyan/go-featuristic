@@ -1,33 +1,32 @@
 package main
 
 import (
-	"flag"
-	"github.com/nikhilryan/go-featuristic/examples"
+	"github.com/nikhilryan/go-featuristic/config"
+	"github.com/nikhilryan/go-featuristic/internal/services"
+	"github.com/nikhilryan/go-featuristic/routes"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 	"log"
+	"net/http"
 )
 
 func main() {
-	example := flag.String("example", "int", "Specify which example to run: int, float, string, intArray, floatArray, stringArray, rollout")
-	flag.Parse()
-
-	switch *example {
-	case "int":
-		examples.RunIntExample()
-	case "float":
-		examples.RunFloatExample()
-	case "string":
-		examples.RunStringExample()
-	case "intArray":
-		examples.RunIntArrayExample()
-	case "floatArray":
-		examples.RunFloatArrayExample()
-	case "stringArray":
-		examples.RunStringArrayExample()
-	case "rollout":
-		examples.RunRolloutExample()
-	case "abTesting":
-		examples.RunABExample()
-	default:
-		log.Fatalf("Unknown example: %s", *example)
+	cfg, err := config.LoadConfig(".")
+	if err != nil {
+		log.Fatalf("could not load config: %v", err)
 	}
+
+	dsn := config.GetDSN(cfg)
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		log.Fatalf("failed to connect to database: %v", err)
+	}
+
+	cacheService := services.NewCacheService(cfg.CacheHost + ":" + cfg.CachePort)
+	featureFlagService := services.NewFeatureFlagService(db, cacheService)
+
+	router := routes.InitializeRoutes(featureFlagService)
+
+	log.Println("Server is running on port", cfg.ServerPort)
+	log.Fatal(http.ListenAndServe(":"+cfg.ServerPort, router))
 }
