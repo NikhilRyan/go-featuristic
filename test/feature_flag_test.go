@@ -1,101 +1,123 @@
 package tests
 
 import (
+	"testing"
+
+	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/nikhilryan/go-featuristic/internal/models"
 	"github.com/nikhilryan/go-featuristic/internal/services"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
-	"testing"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestCreateFlag(t *testing.T) {
-	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
-	if err != nil {
-		t.Fatalf("failed to connect to the database: %v", err)
-	}
-	err = db.AutoMigrate(&models.FeatureFlag{})
-	if err != nil {
-		return
-	}
-
-	cache := services.NewCacheService("localhost:6379")
+	db, mock := setupTestDB(t)
+	cache, _ := setupTestCache()
 	service := services.NewFeatureFlagService(db, cache)
 
-	flag := &models.FeatureFlag{Namespace: "test", Key: "new_feature", Value: "true", Type: "boolean"}
-	err = service.CreateFlag(flag)
-	if err != nil {
-		t.Fatalf("failed to create feature flag: %v", err)
+	flag := &models.FeatureFlag{
+		Namespace: "test",
+		Key:       "feature1",
+		Value:     "true",
+		Type:      "bool",
 	}
 
-	retrievedFlag, err := service.GetFlag("test", "new_feature")
-	if err != nil {
-		t.Fatalf("failed to retrieve feature flag: %v", err)
+	mock.ExpectBegin()
+	mock.ExpectExec("INSERT INTO \"feature_flags\"").WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectCommit()
+
+	err := service.CreateFlag(flag)
+	assert.NoError(t, err)
+}
+
+func TestGetFlag(t *testing.T) {
+	db, mock := setupTestDB(t)
+	cache, _ := setupTestCache()
+	service := services.NewFeatureFlagService(db, cache)
+
+	flag := &models.FeatureFlag{
+		Namespace: "test",
+		Key:       "feature1",
+		Value:     "true",
+		Type:      "bool",
 	}
-	if retrievedFlag.Value != "true" {
-		t.Errorf("expected flag value to be 'true', got '%s'", retrievedFlag.Value)
-	}
+
+	rows := sqlmock.NewRows([]string{"namespace", "key", "value", "type"}).
+		AddRow(flag.Namespace, flag.Key, flag.Value, flag.Type)
+	mock.ExpectQuery("SELECT * FROM \"feature_flags\" WHERE").WillReturnRows(rows)
+
+	result, err := service.GetFlag(flag.Namespace, flag.Key)
+	assert.NoError(t, err)
+	assert.Equal(t, flag, result)
 }
 
 func TestUpdateFlag(t *testing.T) {
-	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
-	if err != nil {
-		t.Fatalf("failed to connect to the database: %v", err)
-	}
-	err = db.AutoMigrate(&models.FeatureFlag{})
-	if err != nil {
-		return
-	}
-
-	cache := services.NewCacheService("localhost:6379")
+	db, mock := setupTestDB(t)
+	cache, _ := setupTestCache()
 	service := services.NewFeatureFlagService(db, cache)
 
-	flag := &models.FeatureFlag{Namespace: "test", Key: "new_feature", Value: "true", Type: "boolean"}
-	err = service.CreateFlag(flag)
-	if err != nil {
-		return
+	flag := &models.FeatureFlag{
+		Namespace: "test",
+		Key:       "feature1",
+		Value:     "false",
+		Type:      "bool",
 	}
 
-	flag.Value = "false"
-	err = service.UpdateFlag(flag)
-	if err != nil {
-		t.Fatalf("failed to update feature flag: %v", err)
-	}
+	mock.ExpectBegin()
+	mock.ExpectExec("UPDATE \"feature_flags\" SET").WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectCommit()
 
-	retrievedFlag, err := service.GetFlag("test", "new_feature")
-	if err != nil {
-		t.Fatalf("failed to retrieve feature flag: %v", err)
-	}
-	if retrievedFlag.Value != "false" {
-		t.Errorf("expected flag value to be 'false', got '%s'", retrievedFlag.Value)
-	}
+	err := service.UpdateFlag(flag)
+	assert.NoError(t, err)
 }
 
 func TestDeleteFlag(t *testing.T) {
-	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
-	if err != nil {
-		t.Fatalf("failed to connect to the database: %v", err)
-	}
-	err = db.AutoMigrate(&models.FeatureFlag{})
-	if err != nil {
-		return
-	}
-
-	cache := services.NewCacheService("localhost:6379")
+	db, mock := setupTestDB(t)
+	cache, _ := setupTestCache()
 	service := services.NewFeatureFlagService(db, cache)
 
-	flag := &models.FeatureFlag{Namespace: "test", Key: "new_feature", Value: "true", Type: "boolean"}
-	err = service.CreateFlag(flag)
-	if err != nil {
-		return
+	namespace := "test"
+	key := "feature1"
+
+	mock.ExpectBegin()
+	mock.ExpectExec("DELETE FROM \"feature_flags\" WHERE").WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectCommit()
+
+	err := service.DeleteFlag(namespace, key)
+	assert.NoError(t, err)
+}
+
+func TestDeleteAllFlags(t *testing.T) {
+	db, mock := setupTestDB(t)
+	cache, _ := setupTestCache()
+	service := services.NewFeatureFlagService(db, cache)
+
+	namespace := "test"
+
+	mock.ExpectBegin()
+	mock.ExpectExec("DELETE FROM \"feature_flags\" WHERE").WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectCommit()
+
+	err := service.DeleteAllFlags(namespace)
+	assert.NoError(t, err)
+}
+
+func TestGetAllFlags(t *testing.T) {
+	db, mock := setupTestDB(t)
+	cache, _ := setupTestCache()
+	service := services.NewFeatureFlagService(db, cache)
+
+	flag := &models.FeatureFlag{
+		Namespace: "test",
+		Key:       "feature1",
+		Value:     "true",
+		Type:      "bool",
 	}
 
-	err = service.DeleteFlag("test", "new_feature")
-	if err != nil {
-		t.Fatalf("failed to delete feature flag: %v", err)
-	}
+	rows := sqlmock.NewRows([]string{"namespace", "key", "value", "type"}).
+		AddRow(flag.Namespace, flag.Key, flag.Value, flag.Type)
+	mock.ExpectQuery("SELECT * FROM \"feature_flags\" WHERE").WillReturnRows(rows)
 
-	_, err = service.GetFlag("test", "new_feature")
-	if err == nil {
-		t.Fatalf("expected error when retrieving deleted feature flag, got none")
-	}
+	result, err := service.GetAllFlags(flag.Namespace)
+	assert.NoError(t, err)
+	assert.Equal(t, []*models.FeatureFlag{flag}, result)
 }

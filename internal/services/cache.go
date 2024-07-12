@@ -11,10 +11,7 @@ type CacheService struct {
 	client *redis.Client
 }
 
-func NewCacheService(addr string) *CacheService {
-	client := redis.NewClient(&redis.Options{
-		Addr: addr,
-	})
+func NewAppCacheService(client *redis.Client) *CacheService {
 	return &CacheService{client: client}
 }
 
