@@ -1,0 +1,42 @@
+{
+  "name": "Go Featuristic Dev Container",
+  "image": "mcr.microsoft.com/vscode/devcontainers/go:latest",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:1": {}
+  },
+  "settings": {
+    "go.gopath": "/go",
+    "go.toolsGopath": "/go/bin",
+    "terminal.integrated.shell.linux": "/bin/bash"
+  },
+  "extensions": [
+    "ms-vscode.go",
+    "ms-azuretools.vscode-docker"
+  ],
+  "postCreateCommand": "go mod tidy && go get ./...",
+  "remoteUser": "vscode",
+  "workspaceFolder": "/workspace/go-featuristic",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace/go-featuristic,type=bind",
+  "forwardPorts": [
+    8080
+  ],
+  "mounts": [
+    "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+  ],
+  "remoteEnv": {
+    "GOPROXY": "https://proxy.golang.org,direct"
+  },
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "go.useLanguageServer": true,
+        "go.gopath": "/go",
+        "go.toolsGopath": "/go/bin"
+      },
+      "extensions": [
+        "golang.go",
+        "ms-azuretools.vscode-docker"
+      ]
+    }
+  }
+}
