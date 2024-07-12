@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  app:
+    image: golang:latest
+    container_name: go-featuristic-app
+    volumes:
+      - .:/go/src/go-featuristic
+    working_dir: /go/src/go-featuristic
+    ports:
+      - "8080:8080"
+    command: ["sh", "-c", "go mod tidy && go run cmd/main.go"]
+    depends_on:
+      - db
+      - redis
+
+  db:
+    image: postgres:latest
+    container_name: go-featuristic-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: gofeaturistic
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:latest
+    container_name: go-featuristic-redis
+    ports:
+      - "6379:6379"
