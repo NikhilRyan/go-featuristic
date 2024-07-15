@@ -67,39 +67,39 @@ func (s *FeatureFlagService) GetFlagValue(namespace, key string) (interface{}, e
 
 	var value interface{}
 	switch flag.Type {
-	case "int":
+	case FlagTypeInt:
 		var intValue int
 		if err := json.Unmarshal([]byte(flag.Value), &intValue); err != nil {
 			return nil, err
 		}
 		value = intValue
-	case "float":
+	case FlagTypeFloat:
 		var floatValue float64
 		if err := json.Unmarshal([]byte(flag.Value), &floatValue); err != nil {
 			return nil, err
 		}
 		value = floatValue
-	case "string":
+	case FlagTypeString:
 		value = flag.Value
-	case "bool":
+	case FlagTypeBool:
 		var boolValue bool
 		if err := json.Unmarshal([]byte(flag.Value), &boolValue); err != nil {
 			return nil, err
 		}
 		value = boolValue
-	case "intArray":
+	case FlagTypeIntArray:
 		var intArrayValue []int
 		if err := json.Unmarshal([]byte(flag.Value), &intArrayValue); err != nil {
 			return nil, err
 		}
 		value = intArrayValue
-	case "floatArray":
+	case FlagTypeFloatArray:
 		var floatArrayValue []float64
 		if err := json.Unmarshal([]byte(flag.Value), &floatArrayValue); err != nil {
 			return nil, err
 		}
 		value = floatArrayValue
-	case "stringArray":
+	case FlagTypeStringArray:
 		var stringArrayValue []string
 		if err := json.Unmarshal([]byte(flag.Value), &stringArrayValue); err != nil {
 			return nil, err

@@ -3,6 +3,7 @@ package examples
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/go-redis/redis/v8"
 	"github.com/nikhilryan/go-featuristic/config"
 	"github.com/nikhilryan/go-featuristic/internal/models"
 	"github.com/nikhilryan/go-featuristic/internal/services"
@@ -28,7 +29,10 @@ func RunFloatArrayExample() {
 		return
 	}
 
-	cacheService := services.NewCacheService(cfg.CacheHost + ":" + cfg.CachePort)
+	client := redis.NewClient(&redis.Options{
+		Addr: cfg.CacheHost + ":" + cfg.CachePort,
+	})
+	cacheService := services.NewAppCacheService(client)
 	featureFlagService := services.NewFeatureFlagService(db, cacheService)
 
 	floatArray := []float64{1.1, 2.2, 3.3}
@@ -40,7 +44,7 @@ func RunFloatArrayExample() {
 		Namespace: "test",
 		Key:       "floatArrayFeature",
 		Value:     string(floatArrayJSON),
-		Type:      "floatArray",
+		Type:      services.FlagTypeFloatArray,
 	}
 	err = featureFlagService.CreateFlag(floatArrayFlag)
 	if err != nil {

@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 	"github.com/nikhilryan/go-featuristic/internal/models"
 	"github.com/nikhilryan/go-featuristic/internal/services"
 	"net/http"

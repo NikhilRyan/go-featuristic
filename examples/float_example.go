@@ -2,6 +2,7 @@ package examples
 
 import (
 	"fmt"
+	"github.com/go-redis/redis/v8"
 	"github.com/nikhilryan/go-featuristic/config"
 	"github.com/nikhilryan/go-featuristic/internal/models"
 	"github.com/nikhilryan/go-featuristic/internal/services"
@@ -27,14 +28,17 @@ func RunFloatExample() {
 		return
 	}
 
-	cacheService := services.NewCacheService(cfg.CacheHost + ":" + cfg.CachePort)
+	client := redis.NewClient(&redis.Options{
+		Addr: cfg.CacheHost + ":" + cfg.CachePort,
+	})
+	cacheService := services.NewAppCacheService(client)
 	featureFlagService := services.NewFeatureFlagService(db, cacheService)
 
 	floatFlag := &models.FeatureFlag{
 		Namespace: "test",
 		Key:       "floatFeature",
 		Value:     "123.45",
-		Type:      "float",
+		Type:      services.FlagTypeFloat,
 	}
 	err = featureFlagService.CreateFlag(floatFlag)
 	if err != nil {

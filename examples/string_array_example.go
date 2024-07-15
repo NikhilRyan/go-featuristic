@@ -3,6 +3,7 @@ package examples
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/go-redis/redis/v8"
 	"github.com/nikhilryan/go-featuristic/config"
 	"github.com/nikhilryan/go-featuristic/internal/models"
 	"github.com/nikhilryan/go-featuristic/internal/services"
@@ -28,7 +29,10 @@ func RunStringArrayExample() {
 		return
 	}
 
-	cacheService := services.NewCacheService(cfg.CacheHost + ":" + cfg.CachePort)
+	client := redis.NewClient(&redis.Options{
+		Addr: cfg.CacheHost + ":" + cfg.CachePort,
+	})
+	cacheService := services.NewAppCacheService(client)
 	featureFlagService := services.NewFeatureFlagService(db, cacheService)
 
 	stringArray := []string{"feature1", "feature2", "feature3"}
@@ -40,7 +44,7 @@ func RunStringArrayExample() {
 		Namespace: "test",
 		Key:       "stringArrayFeature",
 		Value:     string(stringArrayJSON),
-		Type:      "stringArray",
+		Type:      services.FlagTypeStringArray,
 	}
 	err = featureFlagService.CreateFlag(stringArrayFlag)
 	if err != nil {

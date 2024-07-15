@@ -29,8 +29,9 @@ func main() {
 	cacheService := services.NewAppCacheService(client)
 
 	featureFlagService := services.NewFeatureFlagService(db, cacheService)
+	rolloutService := services.NewRolloutService(featureFlagService)
 
-	router := routes.InitializeRoutes(featureFlagService)
+	router := routes.InitializeRoutes(featureFlagService, rolloutService)
 
 	log.Println("Server is running on port", cfg.ServerPort)
 	log.Fatal(http.ListenAndServe(":"+cfg.ServerPort, router))
