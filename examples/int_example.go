@@ -2,37 +2,12 @@ package examples
 
 import (
 	"fmt"
-	"github.com/go-redis/redis/v8"
-	"github.com/nikhilryan/go-featuristic/config"
 	"github.com/nikhilryan/go-featuristic/internal/models"
 	"github.com/nikhilryan/go-featuristic/internal/services"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 	"log"
 )
 
 func RunIntExample() {
-	cfg, err := config.LoadConfig(".")
-	if err != nil {
-		log.Fatalf("could not load config: %v", err)
-	}
-
-	dsn := config.GetDSN(cfg)
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	if err != nil {
-		log.Fatalf("failed to connect to database: %v", err)
-	}
-
-	err = db.AutoMigrate(&models.FeatureFlag{})
-	if err != nil {
-		return
-	}
-
-	client := redis.NewClient(&redis.Options{
-		Addr: cfg.CacheHost + ":" + cfg.CachePort,
-	})
-	cacheService := services.NewAppCacheService(client)
-	featureFlagService := services.NewFeatureFlagService(db, cacheService)
 
 	intFlag := &models.FeatureFlag{
 		Namespace: "test",
@@ -40,7 +15,7 @@ func RunIntExample() {
 		Value:     "123",
 		Type:      services.FlagTypeInt,
 	}
-	err = featureFlagService.CreateFlag(intFlag)
+	err := featureFlagService.CreateFlag(intFlag)
 	if err != nil {
 		log.Fatalf("failed to create feature flag: %v", err)
 	}

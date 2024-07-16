@@ -1,12 +1,11 @@
 package main
 
 import (
-	"github.com/go-redis/redis/v8"
 	"github.com/nikhilryan/go-featuristic/config"
+	"github.com/nikhilryan/go-featuristic/config/cache"
+	"github.com/nikhilryan/go-featuristic/config/db"
 	"github.com/nikhilryan/go-featuristic/internal/services"
 	"github.com/nikhilryan/go-featuristic/routes"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 	"log"
 	"net/http"
 )
@@ -17,18 +16,11 @@ func main() {
 		log.Fatalf("could not load config: %v", err)
 	}
 
-	dsn := config.GetDSN(cfg)
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	if err != nil {
-		log.Fatalf("failed to connect to database: %v", err)
-	}
+	database := db.GetDB()
+	redisClient := cache.GetRedisClient()
 
-	client := redis.NewClient(&redis.Options{
-		Addr: cfg.CacheHost + ":" + cfg.CachePort,
-	})
-	cacheService := services.NewAppCacheService(client)
-
-	featureFlagService := services.NewFeatureFlagService(db, cacheService)
+	cacheService := services.NewAppCacheService(redisClient)
+	featureFlagService := services.NewFeatureFlagService(database, cacheService)
 	rolloutService := services.NewRolloutService(featureFlagService)
 
 	router := routes.InitializeRoutes(featureFlagService, rolloutService)
