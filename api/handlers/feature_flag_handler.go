@@ -2,8 +2,8 @@ package handlers
 
 import (
 	"encoding/json"
-	"github.com/nikhilryan/go-featuristic/internal/models"
-	"github.com/nikhilryan/go-featuristic/internal/services"
+	"github.com/nikhilryan/go-featuristic/featuristic/models"
+	"github.com/nikhilryan/go-featuristic/featuristic/services"
 	"net/http"
 )
 

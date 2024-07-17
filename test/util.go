@@ -3,7 +3,7 @@ package tests
 import (
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/go-redis/redismock/v9"
-	"github.com/nikhilryan/go-featuristic/internal/services"
+	"github.com/nikhilryan/go-featuristic/featuristic/services"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"testing"

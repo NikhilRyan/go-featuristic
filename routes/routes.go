@@ -2,17 +2,17 @@ package routes
 
 import (
 	"github.com/go-chi/chi/v5"
-	"github.com/nikhilryan/go-featuristic/internal/handlers"
-	"github.com/nikhilryan/go-featuristic/internal/middleware"
-	"github.com/nikhilryan/go-featuristic/internal/services"
+	"github.com/nikhilryan/go-featuristic/featuristic/services"
+	handlers2 "github.com/nikhilryan/go-featuristic/handlers"
+	"github.com/nikhilryan/go-featuristic/middleware"
 )
 
 func InitializeRoutes(featureFlagService *services.FeatureFlagService, rolloutService *services.RolloutService) *chi.Mux {
 	r := chi.NewRouter()
 	r.Use(middleware.ValidationMiddleware) // Add the validation middleware
 
-	handler := handlers.NewFeatureFlagHandler(featureFlagService)
-	rolloutHandler := handlers.NewRolloutHandler(rolloutService)
+	handler := handlers2.NewFeatureFlagHandler(featureFlagService)
+	rolloutHandler := handlers2.NewRolloutHandler(rolloutService)
 
 	// Feature flag routes
 	r.Post("/flags", handler.CreateFlag)

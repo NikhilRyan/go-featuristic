@@ -3,8 +3,8 @@ package examples
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/nikhilryan/go-featuristic/internal/models"
-	"github.com/nikhilryan/go-featuristic/internal/services"
+	"github.com/nikhilryan/go-featuristic/featuristic/models"
+	"github.com/nikhilryan/go-featuristic/featuristic/services"
 	"log"
 )
 

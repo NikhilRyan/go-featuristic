@@ -1,13 +1,15 @@
 package main
 
 import (
-	"github.com/nikhilryan/go-featuristic/config"
 	"github.com/nikhilryan/go-featuristic/config/cache"
 	"github.com/nikhilryan/go-featuristic/config/db"
-	"github.com/nikhilryan/go-featuristic/internal/services"
-	"github.com/nikhilryan/go-featuristic/routes"
 	"log"
 	"net/http"
+
+	"github.com/nikhilryan/go-featuristic/config"
+	"github.com/nikhilryan/go-featuristic/featuristic/client"
+	"github.com/nikhilryan/go-featuristic/featuristic/services"
+	"github.com/nikhilryan/go-featuristic/routes"
 )
 
 func main() {
@@ -23,7 +25,15 @@ func main() {
 	featureFlagService := services.NewFeatureFlagService(database, cacheService)
 	rolloutService := services.NewRolloutService(featureFlagService)
 
-	router := routes.InitializeRoutes(featureFlagService, rolloutService)
+	// Use function call client
+	funcClient := client.NewFeatureFlagFuncClient(featureFlagService, rolloutService)
+	// Use API client
+	//apiClient := client.NewFeatureFlagAPIClient(cfg.BaseURL)
+
+	// Choose the client to use
+	selectedClient := funcClient // or apiClient
+
+	router := routes.InitializeRoutes(selectedClient.FeatureFlagService, selectedClient.RolloutService)
 
 	log.Println("Server is running on port", cfg.ServerPort)
 	log.Fatal(http.ListenAndServe(":"+cfg.ServerPort, router))

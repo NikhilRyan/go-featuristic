@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/nikhilryan/go-featuristic/internal/models"
-	"github.com/nikhilryan/go-featuristic/internal/services"
+	"github.com/nikhilryan/go-featuristic/featuristic/models"
+	"github.com/nikhilryan/go-featuristic/featuristic/services"
 	"github.com/stretchr/testify/assert"
 )
 

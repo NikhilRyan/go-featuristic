@@ -3,7 +3,7 @@ package routers
 import (
 	"github.com/gorilla/mux"
 	"github.com/nikhilryan/go-featuristic/api/handlers"
-	"github.com/nikhilryan/go-featuristic/internal/services"
+	"github.com/nikhilryan/go-featuristic/featuristic/services"
 )
 
 func SetupRouter(featureFlagService *services.FeatureFlagService) *mux.Router {

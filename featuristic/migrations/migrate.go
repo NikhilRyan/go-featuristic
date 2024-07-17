@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/nikhilryan/go-featuristic/config"
-	"github.com/nikhilryan/go-featuristic/internal/models"
+	"github.com/nikhilryan/go-featuristic/featuristic/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"

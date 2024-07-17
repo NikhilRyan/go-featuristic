@@ -3,7 +3,7 @@ package examples
 import (
 	"github.com/nikhilryan/go-featuristic/config/cache"
 	"github.com/nikhilryan/go-featuristic/config/db"
-	"github.com/nikhilryan/go-featuristic/internal/services"
+	"github.com/nikhilryan/go-featuristic/featuristic/services"
 )
 
 var (

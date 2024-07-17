@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/go-playground/validator/v10"
-	"github.com/nikhilryan/go-featuristic/internal/models"
+	"github.com/nikhilryan/go-featuristic/featuristic/models"
 	"net/http"
 	"strconv"
 )

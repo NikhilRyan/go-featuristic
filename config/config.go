@@ -1,20 +1,16 @@
 package config
 
 import (
-	"fmt"
 	"github.com/spf13/viper"
 	"os"
 )
 
 type Config struct {
-	DBHost     string `mapstructure:"DB_HOST"`
-	DBPort     string `mapstructure:"DB_PORT"`
-	DBUser     string `mapstructure:"DB_USER"`
-	DBPassword string `mapstructure:"DB_PASSWORD"`
-	DBName     string `mapstructure:"DB_NAME"`
-	CacheHost  string `mapstructure:"CACHE_HOST"`
-	CachePort  string `mapstructure:"CACHE_PORT"`
-	ServerPort string `mapstructure:"SERVER_PORT"`
+	ServerPort string
+	DBConfig   map[string]string
+	CacheHost  string
+	CachePort  string
+	BaseURL    string
 }
 
 var DBConfig = map[string]string{
@@ -22,27 +18,23 @@ var DBConfig = map[string]string{
 	"conn_string": "host=localhost user=postgres password=password dbname=gofeaturistic port=5432 sslmode=disable",
 }
 
-func LoadConfig(path string) (config Config, err error) {
+func LoadConfig(path string) (*Config, error) {
 	viper.AddConfigPath(path)
-	viper.SetConfigType("env")
-	viper.SetConfigName("app")
-
+	viper.SetConfigName("config")
+	viper.SetConfigType("yaml")
 	viper.AutomaticEnv()
 
-	err = viper.ReadInConfig()
-	if err != nil {
-		return
+	if err := viper.ReadInConfig(); err != nil {
+		return nil, err
 	}
 
-	err = viper.Unmarshal(&config)
-	return
-}
+	var config Config
+	if err := viper.Unmarshal(&config); err != nil {
+		return nil, err
+	}
 
-func GetDSN(cfg Config) string {
-	return fmt.Sprintf(
-		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
-		cfg.DBHost, cfg.DBUser, cfg.DBPassword, cfg.DBName, cfg.DBPort,
-	)
+	config.BaseURL = "http://localhost:" + config.ServerPort
+	return &config, nil
 }
 
 func GetMainDSN() string {

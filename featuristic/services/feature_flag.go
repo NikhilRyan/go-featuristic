@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/nikhilryan/go-featuristic/internal/models"
+	"github.com/nikhilryan/go-featuristic/featuristic/models"
 	"gorm.io/gorm"
 )
 

@@ -2,7 +2,7 @@ package services
 
 import (
 	"errors"
-	"github.com/nikhilryan/go-featuristic/internal/models"
+	"github.com/nikhilryan/go-featuristic/featuristic/models"
 	"hash/fnv"
 )
 

@@ -1,0 +1,6 @@
+serverport: "8080"
+dbconfig:
+  driver: "postgres"
+  conn_string: "host=localhost user=postgres password=password dbname=gofeaturistic port=5432 sslmode=disable"
+cachehost: "localhost"
+cacheport: "6379"
