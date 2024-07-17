@@ -2,27 +2,44 @@ package services
 
 import (
 	"context"
-	"github.com/redis/go-redis/v9"
+	"sync"
 )
 
-var ctx = context.Background()
-
 type CacheService struct {
-	client *redis.Client
+	client RedisClient
+	mu     sync.Mutex
 }
 
-func NewAppCacheService(client *redis.Client) *CacheService {
-	return &CacheService{client: client}
+func NewAppCacheService(client RedisClient) *CacheService {
+	return &CacheService{
+		client: client,
+	}
 }
 
-func (c *CacheService) Set(key string, value interface{}) error {
-	return c.client.Set(ctx, key, value, 0).Err()
+func (c *CacheService) Set(key string, value string) error {
+	return c.client.Set(context.Background(), key, value, 0)
 }
 
 func (c *CacheService) Get(key string) (string, error) {
-	return c.client.Get(ctx, key).Result()
+	return c.client.Get(context.Background(), key)
 }
 
-func (c *CacheService) Invalidate(key string) error {
-	return c.client.Del(ctx, key).Err()
+func (c *CacheService) Delete(key string) error {
+	return c.client.Del(context.Background(), key)
+}
+
+func (c *CacheService) DeleteNamespace(namespace string) error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	keys, err := c.client.Keys(context.Background(), namespace+"_*")
+	if err != nil {
+		return err
+	}
+
+	if len(keys) > 0 {
+		return c.client.Del(context.Background(), keys...)
+	}
+
+	return nil
 }

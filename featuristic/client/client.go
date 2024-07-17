@@ -36,7 +36,7 @@ func (c *FeatureFlagFuncClient) DeleteFlag(namespace, key string) error {
 }
 
 // GetAllFlags retrieves all feature flags in a namespace
-func (c *FeatureFlagFuncClient) GetAllFlags(namespace string) ([]models.FeatureFlag, error) {
+func (c *FeatureFlagFuncClient) GetAllFlags(namespace string) ([]*models.FeatureFlag, error) {
 	return c.FeatureFlagService.GetAllFlags(namespace)
 }
 

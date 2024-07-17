@@ -122,7 +122,7 @@ func (s *FeatureFlagService) DeleteFlag(namespace, key string) error {
 	if err := s.db.Where("namespace = ? AND key = ?", namespace, key).Delete(&models.FeatureFlag{}).Error; err != nil {
 		return err
 	}
-	return s.cache.Invalidate(getCacheKey(namespace, key))
+	return s.cache.Delete(getCacheKey(namespace, key))
 }
 
 func (s *FeatureFlagService) DeleteAllFlags(namespace string) error {
@@ -134,7 +134,7 @@ func (s *FeatureFlagService) DeleteAllFlags(namespace string) error {
 	var flags []models.FeatureFlag
 	if err := s.db.Where("namespace = ?", namespace).Find(&flags).Error; err == nil {
 		for _, flag := range flags {
-			err := s.cache.Invalidate(getCacheKey(namespace, flag.Key))
+			err := s.cache.Delete(getCacheKey(namespace, flag.Key))
 			if err != nil {
 				return err
 			}

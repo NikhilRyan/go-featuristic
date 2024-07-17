@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/nikhilryan/go-featuristic/config/cache"
 	"github.com/nikhilryan/go-featuristic/config/db"
+	"github.com/redis/go-redis/v9"
 	"log"
 	"net/http"
 
@@ -19,9 +19,20 @@ func main() {
 	}
 
 	database := db.GetDB()
-	redisClient := cache.GetRedisClient()
+	// Initialize Redis UniversalClient
+	redisOptions := &redis.UniversalOptions{
+		Addrs: []string{"localhost:6379"},
+	}
+	redisClient := redis.NewUniversalClient(redisOptions)
+	cacheService := services.NewAppCacheService(services.NewRedisUniversalClientAdapter(redisClient))
 
-	cacheService := services.NewAppCacheService(redisClient)
+	// Alternatively, for redis.Client:
+	// redisClient := redis.NewClient(&redis.Options{
+	//     Addr: "localhost:6379",
+	// })
+	// cacheService := services.NewAppCacheService(services.NewRedisClientAdapter(redisClient))
+
+	// Initialize FeatureFlagService with the adapter
 	featureFlagService := services.NewFeatureFlagService(database, cacheService)
 
 	// Use function call client
