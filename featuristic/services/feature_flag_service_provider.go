@@ -16,7 +16,7 @@ type FeatureFlagServiceProvider interface {
 	DeleteAllFlags(namespace string) error
 
 	// RolloutService methods
-	IsEnabled(namespace, key, userID string) (bool, error)
+	IsEnabled(namespace, key, userID string, rolloutPercentage int) (bool, error)
 	GetRolloutPercentage(namespace, key string) (int, error)
 	GetRolloutPercentageForUser(namespace, key, userID string) (int, error)
 	GetRolloutPercentageForUserAndNamespace(namespace, key, userID string) (int, error)

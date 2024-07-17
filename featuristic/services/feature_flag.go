@@ -144,8 +144,8 @@ func (s *FeatureFlagService) DeleteAllFlags(namespace string) error {
 	return nil
 }
 
-func (s *FeatureFlagService) GetAllFlags(namespace string) ([]models.FeatureFlag, error) {
-	var flags []models.FeatureFlag
+func (s *FeatureFlagService) GetAllFlags(namespace string) ([]*models.FeatureFlag, error) {
+	var flags []*models.FeatureFlag
 	if err := s.db.Where("namespace = ?", namespace).Find(&flags).Error; err != nil {
 		return nil, err
 	}
