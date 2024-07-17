@@ -19,7 +19,6 @@ import (
 var (
 	db                 *gorm.DB
 	featureFlagService *services.FeatureFlagService
-	rolloutService     *services.RolloutService
 )
 
 func init() {
@@ -35,11 +34,10 @@ func init() {
 	})
 	cacheService := services.NewAppCacheService(client)
 	featureFlagService = services.NewFeatureFlagService(db, cacheService)
-	rolloutService = services.NewRolloutService(featureFlagService)
 }
 
 func setupRouter() *chi.Mux {
-	return routes.InitializeRoutes(featureFlagService, rolloutService)
+	return routes.InitializeRoutes(featureFlagService)
 }
 
 func TestCreateFlagAPI(t *testing.T) {

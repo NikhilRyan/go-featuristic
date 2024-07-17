@@ -13,7 +13,6 @@ func TestIsEnabled(t *testing.T) {
 	db, mock := setupTestDB(t)
 	cacheService, _ := setupTestCache()
 	featureFlagService := services.NewFeatureFlagService(db, cacheService)
-	rolloutService := services.NewRolloutService(featureFlagService)
 
 	flag := &models.FeatureFlag{
 		Namespace: "test",
@@ -28,7 +27,7 @@ func TestIsEnabled(t *testing.T) {
 
 	userID := "user123"
 	rolloutPercentage := 50
-	enabled, err := rolloutService.IsEnabled(flag.Namespace, flag.Key, userID, rolloutPercentage)
+	enabled, err := featureFlagService.IsEnabled(flag.Namespace, flag.Key, userID, rolloutPercentage)
 	assert.NoError(t, err)
 	assert.IsType(t, bool(enabled), enabled)
 }
@@ -37,7 +36,6 @@ func TestIsEnabledWithDifferentRolloutPercentages(t *testing.T) {
 	db, mock := setupTestDB(t)
 	cacheService, _ := setupTestCache()
 	featureFlagService := services.NewFeatureFlagService(db, cacheService)
-	rolloutService := services.NewRolloutService(featureFlagService)
 
 	flag := &models.FeatureFlag{
 		Namespace: "test",
@@ -53,12 +51,12 @@ func TestIsEnabledWithDifferentRolloutPercentages(t *testing.T) {
 	userID := "user123"
 
 	// Test with 0% rollout
-	enabled, err := rolloutService.IsEnabled(flag.Namespace, flag.Key, userID, 0)
+	enabled, err := featureFlagService.IsEnabled(flag.Namespace, flag.Key, userID, 0)
 	assert.NoError(t, err)
 	assert.Equal(t, false, enabled)
 
 	// Test with 100% rollout
-	enabled, err = rolloutService.IsEnabled(flag.Namespace, flag.Key, userID, 100)
+	enabled, err = featureFlagService.IsEnabled(flag.Namespace, flag.Key, userID, 100)
 	assert.NoError(t, err)
 	assert.Equal(t, true, enabled)
 }
@@ -67,7 +65,6 @@ func TestIsEnabledWithNonBooleanFlag(t *testing.T) {
 	db, mock := setupTestDB(t)
 	cacheService, _ := setupTestCache()
 	featureFlagService := services.NewFeatureFlagService(db, cacheService)
-	rolloutService := services.NewRolloutService(featureFlagService)
 
 	flag := &models.FeatureFlag{
 		Namespace: "test",
@@ -82,7 +79,7 @@ func TestIsEnabledWithNonBooleanFlag(t *testing.T) {
 
 	userID := "user123"
 	rolloutPercentage := 50
-	enabled, err := rolloutService.IsEnabled(flag.Namespace, flag.Key, userID, rolloutPercentage)
+	enabled, err := featureFlagService.IsEnabled(flag.Namespace, flag.Key, userID, rolloutPercentage)
 	assert.Error(t, err)
 	assert.Equal(t, false, enabled)
 	assert.EqualError(t, err, "feature flag is not a boolean type")

@@ -23,17 +23,16 @@ func main() {
 
 	cacheService := services.NewAppCacheService(redisClient)
 	featureFlagService := services.NewFeatureFlagService(database, cacheService)
-	rolloutService := services.NewRolloutService(featureFlagService)
 
 	// Use function call client
-	funcClient := client.NewFeatureFlagFuncClient(featureFlagService, rolloutService)
+	funcClient := client.NewFeatureFlagFuncClient(featureFlagService)
 	// Use API client
 	//apiClient := client.NewFeatureFlagAPIClient(cfg.BaseURL)
 
 	// Choose the client to use
 	selectedClient := funcClient // or apiClient
 
-	router := routes.InitializeRoutes(selectedClient.FeatureFlagService, selectedClient.RolloutService)
+	router := routes.InitializeRoutes(selectedClient.FeatureFlagService)
 
 	log.Println("Server is running on port", cfg.ServerPort)
 	log.Fatal(http.ListenAndServe(":"+cfg.ServerPort, router))

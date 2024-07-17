@@ -6,6 +6,7 @@ import (
 	"github.com/nikhilryan/go-featuristic/featuristic/models"
 	"github.com/nikhilryan/go-featuristic/featuristic/services"
 	"net/http"
+	"strconv"
 )
 
 type FeatureFlagHandler struct {
@@ -103,6 +104,29 @@ func (h *FeatureFlagHandler) GetABTestVariant(w http.ResponseWriter, r *http.Req
 		return
 	}
 	err = json.NewEncoder(w).Encode(map[string]string{"variant": variant})
+	if err != nil {
+		return
+	}
+}
+
+func (h *FeatureFlagHandler) IsEnabled(w http.ResponseWriter, r *http.Request) {
+	namespace := chi.URLParam(r, "namespace")
+	key := chi.URLParam(r, "key")
+	userID := r.URL.Query().Get("user_id")
+	rolloutPercentage, err := strconv.Atoi(r.URL.Query().Get("rollout_percentage"))
+	if err != nil {
+		http.Error(w, "Invalid rollout percentage", http.StatusBadRequest)
+		return
+	}
+
+	enabled, err := h.FeatureFlagService.IsEnabled(namespace, key, userID, rolloutPercentage)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	response := map[string]bool{"enabled": enabled}
+	err = json.NewEncoder(w).Encode(response)
 	if err != nil {
 		return
 	}

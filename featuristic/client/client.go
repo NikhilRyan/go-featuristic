@@ -7,13 +7,11 @@ import (
 
 type FeatureFlagFuncClient struct {
 	FeatureFlagService *services.FeatureFlagService
-	RolloutService     *services.RolloutService
 }
 
-func NewFeatureFlagFuncClient(featureFlagService *services.FeatureFlagService, rolloutService *services.RolloutService) *FeatureFlagFuncClient {
+func NewFeatureFlagFuncClient(featureFlagService *services.FeatureFlagService) *FeatureFlagFuncClient {
 	return &FeatureFlagFuncClient{
 		FeatureFlagService: featureFlagService,
-		RolloutService:     rolloutService,
 	}
 }
 
@@ -49,7 +47,7 @@ func (c *FeatureFlagFuncClient) DeleteAllFlags(namespace string) error {
 
 // IsRolloutEnabled checks if a rollout is enabled for a given namespace, key, and user ID
 func (c *FeatureFlagFuncClient) IsRolloutEnabled(namespace, key, userID string, rolloutPercentage int) (bool, error) {
-	return c.RolloutService.IsEnabled(namespace, key, userID, rolloutPercentage)
+	return c.FeatureFlagService.IsEnabled(namespace, key, userID, rolloutPercentage)
 }
 
 // GetABTestVariant retrieves the A/B test variant for a given namespace, key, and user ID

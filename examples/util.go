@@ -8,7 +8,6 @@ import (
 
 var (
 	featureFlagService *services.FeatureFlagService
-	rolloutService     *services.RolloutService
 )
 
 func init() {
@@ -18,5 +17,4 @@ func init() {
 
 	cacheService := services.NewAppCacheService(redisClient)
 	featureFlagService = services.NewFeatureFlagService(database, cacheService)
-	rolloutService = services.NewRolloutService(featureFlagService)
 }

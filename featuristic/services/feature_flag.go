@@ -3,7 +3,6 @@ package services
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/nikhilryan/go-featuristic/featuristic/models"
 	"gorm.io/gorm"
 )
@@ -15,10 +14,6 @@ type FeatureFlagService struct {
 
 func NewFeatureFlagService(db *gorm.DB, cache *CacheService) *FeatureFlagService {
 	return &FeatureFlagService{db: db, cache: cache}
-}
-
-func getCacheKey(namespace, key string) string {
-	return fmt.Sprintf("%s_%s", namespace, key)
 }
 
 func (s *FeatureFlagService) CreateFlag(flag *models.FeatureFlag) error {
@@ -164,4 +159,75 @@ func (s *FeatureFlagService) GetABTestVariant(namespace, key, userID, targetGrou
 	}
 
 	return determineABTestVariant(flag, userID, targetGroup)
+}
+
+func (s *FeatureFlagService) IsEnabled(namespace, key string, userID string, rolloutPercentage int) (bool, error) {
+	flag, err := s.GetFlag(namespace, key)
+	if err != nil {
+		return false, err
+	}
+	if flag.Type != "boolean" {
+		return false, nil
+	}
+	hash := hashUserID(userID)
+	return hash%100 < rolloutPercentage, nil
+}
+
+func (s *FeatureFlagService) GetRolloutPercentage(namespace, key string) (int, error) {
+	flag, err := s.GetFlag(namespace, key)
+	if err != nil {
+		return 0, err
+	}
+	if flag.Type != "boolean" {
+		return 0, nil
+	}
+	return 100, nil
+}
+
+func (s *FeatureFlagService) GetRolloutPercentageForUser(namespace, key, userID string) (int, error) {
+	flag, err := s.GetFlag(namespace, key)
+	if err != nil {
+		return 0, err
+	}
+	if flag.Type != "boolean" {
+		return 0, nil
+	}
+	hash := hashUserID(userID)
+	return hash % 100, nil
+}
+
+func (s *FeatureFlagService) GetRolloutPercentageForUserAndNamespace(namespace, key, userID string) (int, error) {
+	flag, err := s.GetFlag(namespace, key)
+	if err != nil {
+		return 0, err
+	}
+	if flag.Type != "boolean" {
+		return 0, nil
+	}
+	hash := hashUserID(userID)
+	return hash % 100, nil
+}
+
+func (s *FeatureFlagService) GetRolloutPercentageForUserAndKey(namespace, key, userID string) (int, error) {
+	flag, err := s.GetFlag(namespace, key)
+	if err != nil {
+		return 0, err
+	}
+	if flag.Type != "boolean" {
+		return 0, nil
+	}
+	hash := hashUserID(userID)
+	return hash % 100, nil
+}
+
+func (s *FeatureFlagService) GetRolloutPercentageForUserAndNamespaceAndKey(namespace, key, userID string) (int, error) {
+	flag, err := s.GetFlag(namespace, key)
+	if err != nil {
+		return 0, err
+	}
+	if flag.Type != "boolean" {
+		return 0, nil
+	}
+	hash := hashUserID(userID)
+	return hash % 100, nil
 }

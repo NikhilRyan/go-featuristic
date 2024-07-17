@@ -28,7 +28,7 @@ func RunRolloutExample() {
 	rolloutPercentage := 50
 
 	for _, userID := range userIDs {
-		enabled, err := rolloutService.IsEnabled("test", "rolloutFeature", userID, rolloutPercentage)
+		enabled, err := featureFlagService.IsEnabled("test", "rolloutFeature", userID, rolloutPercentage)
 		if err != nil {
 			log.Fatalf("failed to check rollout status: %v", err)
 		}
