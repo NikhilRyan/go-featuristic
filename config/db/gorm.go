@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/nikhilryan/go-featuristic/config"
+	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -19,8 +20,9 @@ var (
 func GetDB() *gorm.DB {
 	dbOnce.Do(func() {
 		var err error
-		dsn := config.GetMainDSN()
-		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
+		cfg, _ := config.LoadConfig(".")
+		dsn := getDSN(*cfg)
+		db, err = gorm.Open(getDialect(cfg.Driver, dsn), &gorm.Config{
 			Logger: logger.Default.LogMode(logger.Info),
 		})
 		if err != nil {
@@ -42,4 +44,28 @@ func GetDB() *gorm.DB {
 		sqlDB.SetConnMaxLifetime(5 * time.Minute)
 	})
 	return db
+}
+
+func getDSN(cfg config.Config) string {
+	switch cfg.Driver {
+	case "postgres":
+		return config.GetMainDSN(cfg)
+	case "mysql":
+		return config.GetMainDSN(cfg)
+	default:
+		log.Fatalf("unsupported database driver: %s", cfg.Driver)
+		return ""
+	}
+}
+
+func getDialect(driver string, dsn string) gorm.Dialector {
+	switch driver {
+	case "postgres":
+		return postgres.Open(dsn)
+	case "mysql":
+		return mysql.Open(dsn)
+	default:
+		log.Fatalf("unsupported database driver: %s", driver)
+		return nil
+	}
 }
