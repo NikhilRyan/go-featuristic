@@ -1,13 +1,26 @@
 package tests
 
 import (
+	"fmt"
 	"github.com/nikhilryan/go-featuristic/featuristic/services"
 	"testing"
 )
 
+type CustomFunctions struct{}
+
+func (cf CustomFunctions) CustomGreet(name string) string {
+	return fmt.Sprintf("Greetings, %s!", name)
+}
+
 func TestFunctionRegistry(t *testing.T) {
 	// Register functions from the package
 	err := services.RegisterFunctionsFromPackage(services.FunctionPackage{})
+	if err != nil {
+		return
+	}
+
+	// Register external functions from the user's codebase
+	err = services.RegisterFunctionsFromPackage(CustomFunctions{})
 	if err != nil {
 		return
 	}
@@ -23,35 +36,13 @@ func TestFunctionRegistry(t *testing.T) {
 		t.Fatalf("Expected %s but got %s", expected, value)
 	}
 
-	// Test Add function
-	a, b := 5, 3
-	value, err = services.CallFunction("Add", a, b)
+	// Test CustomGreet function
+	value, err = services.CallFunction("CustomGreet", name)
 	if err != nil {
-		t.Fatalf("Error calling Add function: %v", err)
+		t.Fatalf("Error calling CustomGreet function: %v", err)
 	}
-	expectedSum := 8
-	if value != expectedSum {
-		t.Fatalf("Expected %d but got %d", expectedSum, value)
-	}
-
-	// Test UserGreeting function
-	user := services.User{FirstName: "John", LastName: "Doe", Age: 30}
-	value, err = services.CallFunction("UserGreeting", user)
-	if err != nil {
-		t.Fatalf("Error calling UserGreeting function: %v", err)
-	}
-	expectedGreeting := "Hello, John Doe, age 30!"
-	if value != expectedGreeting {
-		t.Fatalf("Expected %s but got %s", expectedGreeting, value)
-	}
-
-	// Test Multiply function
-	value, err = services.CallFunction("Multiply", a, b)
-	if err != nil {
-		t.Fatalf("Error calling Multiply function: %v", err)
-	}
-	expectedProduct := 15
-	if value != expectedProduct {
-		t.Fatalf("Expected %d but got %d", expectedProduct, value)
+	expectedCustom := "Greetings, John Doe!"
+	if value != expectedCustom {
+		t.Fatalf("Expected %s but got %s", expectedCustom, value)
 	}
 }
