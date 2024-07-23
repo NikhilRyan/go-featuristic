@@ -15,6 +15,6 @@ func init() {
 	database := db.GetDB()
 	redisClient := cache.GetRedisClient()
 
-	cacheService := services.NewAppCacheService(redisClient)
+	cacheService := services.NewAppCacheService(services.NewRedisClientAdapter(redisClient))
 	featureFlagService = services.NewFeatureFlagService(database, cacheService)
 }

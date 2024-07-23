@@ -32,5 +32,5 @@ func setupTestDB(t *testing.T) (*gorm.DB, sqlmock.Sqlmock) {
 
 func setupTestCache() (*services.CacheService, redismock.ClientMock) {
 	client, mock := redismock.NewClientMock()
-	return services.NewAppCacheService(client), mock
+	return services.NewAppCacheService(services.NewRedisClientAdapter(client)), mock
 }

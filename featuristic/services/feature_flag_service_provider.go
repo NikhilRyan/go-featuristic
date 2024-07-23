@@ -8,6 +8,7 @@ import (
 type FeatureFlagServiceProvider interface {
 	// FeatureFlagService methods
 	GetFlagValue(namespace, key string) (interface{}, error)
+	GetFunctionValue(namespace, key string, args ...interface{}) (interface{}, error)
 	GetFlag(namespace, key string) (*models.FeatureFlag, error)
 	CreateFlag(flag *models.FeatureFlag) error
 	UpdateFlag(flag *models.FeatureFlag) error

@@ -32,7 +32,7 @@ func init() {
 	client := redis.NewClient(&redis.Options{
 		Addr: "localhost:6379",
 	})
-	cacheService := services.NewAppCacheService(client)
+	cacheService := services.NewAppCacheService(services.NewRedisClientAdapter(client))
 	featureFlagService = services.NewFeatureFlagService(db, cacheService)
 }
 

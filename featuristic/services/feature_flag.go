@@ -107,6 +107,19 @@ func (s *FeatureFlagService) GetFlagValue(namespace, key string) (interface{}, e
 	return value, nil
 }
 
+func (s *FeatureFlagService) GetFunctionValue(namespace, key string, args ...interface{}) (interface{}, error) {
+	flag, err := s.GetFlag(namespace, key)
+	if err != nil {
+		return nil, err
+	}
+
+	if flag.Type != FlagTypeFunction {
+		return flag.Value, nil
+	}
+
+	return CallFunction(flag.Value, args...)
+}
+
 func (s *FeatureFlagService) UpdateFlag(flag *models.FeatureFlag) error {
 	if err := s.db.Save(flag).Error; err != nil {
 		return err
