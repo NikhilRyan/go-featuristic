@@ -1,31 +1,25 @@
 package routes
 
 import (
-	"github.com/go-chi/chi/v5"
 	"github.com/nikhilryan/go-featuristic/featuristic/services"
-	handlers2 "github.com/nikhilryan/go-featuristic/handlers"
+	"github.com/nikhilryan/go-featuristic/handlers"
 	"github.com/nikhilryan/go-featuristic/middleware"
 )
 
-func InitializeRoutes(featureFlagService *services.FeatureFlagService) *chi.Mux {
-	r := chi.NewRouter()
-	r.Use(middleware.ValidationMiddleware) // Add the validation middleware
+func InitializeRoutes(router Router, featureFlagService *services.FeatureFlagService) {
+	// Apply middleware
+	router.Use(middleware.ValidationMiddleware)
 
-	handler := handlers2.NewFeatureFlagHandler(featureFlagService)
+	// Create handler
+	handler := handlers.NewFeatureFlagHandler(featureFlagService)
 
-	// Feature flag routes
-	r.Post("/flags", handler.CreateFlag)
-	r.Get("/flags/{namespace}/{key}", handler.GetFlag)
-	r.Get("/flags/{namespace}", handler.GetAllFlags)
-	r.Put("/flags/{namespace}/{key}", handler.UpdateFlag)
-	r.Delete("/flags/{namespace}/{key}", handler.DeleteFlag)
-	r.Delete("/flags/{namespace}", handler.DeleteAllFlags)
-
-	// A/B testing routes
-	r.Get("/abtest/{namespace}/{key}", handler.GetABTestVariant)
-
-	// Rollout routes
-	r.Get("/rollout/{namespace}/{key}", handler.IsEnabled)
-
-	return r
+	// Define routes
+	router.Get("/flags/{namespace}/{key}", handler.GetFlag)
+	router.Post("/flags", handler.CreateFlag)
+	router.Get("/flags/{namespace}", handler.GetAllFlags)
+	router.Put("/flags/{namespace}/{key}", handler.UpdateFlag)
+	router.Delete("/flags/{namespace}/{key}", handler.DeleteFlag)
+	router.Delete("/flags/{namespace}", handler.DeleteAllFlags)
+	router.Get("/abtest/{namespace}/{key}", handler.GetABTestVariant)
+	router.Get("/rollout/{namespace}/{key}", handler.IsEnabled)
 }
