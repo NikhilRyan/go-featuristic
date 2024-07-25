@@ -8,22 +8,23 @@ import (
 
 // Config contains database configuration properties
 type Config struct {
-	Driver     string
-	Host       string
-	Port       string
-	User       string
-	Password   string
-	DBName     string
-	SSLMode    string // For Postgres
-	Charset    string // For MySQL
-	BaseURL    string
-	ServerPort string
+	DBHost     string `mapstructure:"DB_HOST"`
+	DBPort     string `mapstructure:"DB_PORT"`
+	DBUser     string `mapstructure:"DB_USER"`
+	DBPassword string `mapstructure:"DB_PASSWORD"`
+	DBName     string `mapstructure:"DB_NAME"`
+	RedisAddr  string `mapstructure:"REDIS_ADDR"`
+	ServerPort string `mapstructure:"SERVER_PORT"`
+	Driver     string `mapstructure:"DRIVER"`
+	SSLMode    string `mapstructure:"SSL_MODE"` // For Postgres
+	Charset    string `mapstructure:"CHARSET"`  // For MySQL
+	BaseURL    string `mapstructure:"BASE_URL"`
 }
 
 func LoadConfig(path string) (*Config, error) {
 	viper.AddConfigPath(path)
-	viper.SetConfigName("config")
-	viper.SetConfigType("yaml")
+	viper.SetConfigName("app")
+	viper.SetConfigType("env")
 	viper.AutomaticEnv()
 
 	if err := viper.ReadInConfig(); err != nil {
@@ -43,9 +44,9 @@ func LoadConfig(path string) (*Config, error) {
 func GetMainDSN(cfg Config) string {
 	switch cfg.Driver {
 	case "postgres":
-		return fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=%s", cfg.Host, cfg.User, cfg.Password, cfg.DBName, cfg.Port, cfg.SSLMode)
+		return fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=%s", cfg.DBHost, cfg.DBUser, cfg.DBPassword, cfg.DBName, cfg.DBPort, cfg.SSLMode)
 	case "mysql":
-		return fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=%s&parseTime=True&loc=Local", cfg.User, cfg.Password, cfg.Host, cfg.Port, cfg.DBName, cfg.Charset)
+		return fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=%s&parseTime=True&loc=Local", cfg.DBUser, cfg.DBPassword, cfg.DBHost, cfg.DBPort, cfg.DBName, cfg.Charset)
 	default:
 		return ""
 	}
